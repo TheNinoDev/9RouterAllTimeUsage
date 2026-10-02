@@ -1,0 +1,6 @@
+# Chrome unpacked extension generated cache
+_metadata/
+
+# OS files
+.DS_Store
+Thumbs.db

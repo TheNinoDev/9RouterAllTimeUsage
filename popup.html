@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>9Router Usage Extender</title>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --border: #262626;
+      --text: #f5f5f5;
+      --text-muted: #a3a3a3;
+      --primary: #3b82f6;
+      --primary-hover: #2563eb;
+      --success: #22c55e;
+      --danger: #ef4444;
+    }
+    body {
+      width: 320px;
+      margin: 0;
+      padding: 16px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+      margin-bottom: 16px;
+    }
+    .title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .badge {
+      font-size: 10px;
+      background-color: rgba(59, 130, 246, 0.2);
+      color: var(--primary);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    .status-card {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+    }
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .status-row:last-child {
+      margin-bottom: 0;
+    }
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--success);
+      font-weight: 500;
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      background-color: var(--success);
+      border-radius: 50%;
+    }
+    .dot.locked {
+      background-color: var(--danger);
+    }
+    .status-indicator.locked {
+      color: var(--danger);
+    }
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .periods-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+    .period-chip {
+      background-color: var(--surface);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 12px;
+      padding: 6px;
+      text-align: center;
+      border-radius: 6px;
+      font-weight: 500;
+    }
+    .period-chip.active {
+      border-color: var(--primary);
+      color: var(--primary);
+      background-color: rgba(59, 130, 246, 0.1);
+    }
+    .btn {
+      width: 100%;
+      background-color: var(--primary);
+      color: #ffffff;
+      border: none;
+      padding: 10px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .btn:hover {
+      background-color: var(--primary-hover);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: wait;
+    }
+    .btn-secondary {
+      background-color: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      margin-top: 8px;
+    }
+    .btn-secondary:hover {
+      background-color: var(--surface);
+      color: var(--text);
+    }
+    .license-input {
+      width: 100%;
+      box-sizing: border-box;
+      background-color: var(--bg);
+      border: 1px solid #333;
+      color: var(--text);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 13px;
+      outline: none;
+      margin-bottom: 10px;
+    }
+    .license-input:focus {
+      border-color: var(--primary);
+    }
+    .license-error {
+      display: none;
+      font-size: 12px;
+      color: #fca5a5;
+      background-color: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 8px 10px;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    .license-meta {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 10px;
+      line-height: 1.5;
+    }
+    .hidden { display: none !important; }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="title">
+      9Router <span class="badge">v1.1</span>
+    </div>
+    <div class="status-indicator" id="statusIndicator">
+      <div class="dot" id="statusDot"></div> <span id="statusText">Active</span>
+    </div>
+  </div>
+
+  <!-- License gate: shown first, blocks everything else until valid -->
+  <div id="licenseView">
+    <div class="section-title">License required</div>
+    <div class="status-card">
+      <div class="status-row">
+        <span style="color: var(--text-muted);">Status:</span>
+        <span style="font-weight: 500; color: var(--danger);">Not activated</span>
+      </div>
+      <div class="status-row">
+        <span style="color: var(--text-muted);">Step:</span>
+        <span style="font-weight: 500;">Enter key to continue</span>
+      </div>
+    </div>
+    <input id="licenseInput" class="license-input" type="text" placeholder="PWF-XXXX-XXXX-XXXX" autocomplete="off" spellcheck="false">
+    <div id="licenseError" class="license-error"></div>
+    <button id="activateBtn" class="btn">Activate license</button>
+    <button id="buyBtn" class="btn btn-secondary">Buy license</button>
+    <div class="license-meta">Key is verified with pwfauth.com and stored only on this device.</div>
+  </div>
+
+  <!-- Main UI: hidden until licensed -->
+  <div id="mainView" class="hidden">
+    <div class="status-card">
+      <div class="status-row">
+        <span style="color: var(--text-muted);">Target:</span>
+        <span style="font-weight: 500;">9Router Dashboard</span>
+      </div>
+      <div class="status-row">
+        <span style="color: var(--text-muted);">Added Periods:</span>
+        <span style="font-weight: 500; color: var(--primary);">60D + All Time</span>
+      </div>
+      <div class="status-row">
+        <span style="color: var(--text-muted);">License:</span>
+        <span id="licenseStatusLine" style="font-weight: 500; color: var(--success);">Valid</span>
+      </div>
+      <div class="status-row">
+        <span style="color: var(--text-muted);">Bound to:</span>
+        <span id="deviceLine" style="font-weight: 500; font-family: monospace; font-size: 11px;">this device</span>
+      </div>
+    </div>
+
+    <div class="section-title">Enabled Usage Options</div>
+    <div class="periods-grid">
+      <div class="period-chip">Today</div>
+      <div class="period-chip">24h</div>
+      <div class="period-chip">7D</div>
+      <div class="period-chip">30D</div>
+      <div class="period-chip active">60D</div>
+      <div class="period-chip active">All Time</div>
+    </div>
+
+    <button id="openBtn" class="btn">
+      Open Usage Dashboard
+    </button>
+    <button id="deactivateBtn" class="btn btn-secondary">
+      Remove license
+    </button>
+  </div>
+
+  <script src="pwf-license.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
