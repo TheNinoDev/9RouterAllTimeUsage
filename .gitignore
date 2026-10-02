@@ -1,6 +1,25 @@
 # Chrome unpacked extension generated cache
 _metadata/
 
+# Build and archive outputs
+*.zip
+*.crx
+
+# Temporary and test files
+*.tmp
+*.temp
+*.log
+test/
+tests/
+tmp/
+temp/
+
+# Environment and secrets
+.env
+.env.*
+*.pem
+*.key
+
 # OS files
 .DS_Store
 Thumbs.db
